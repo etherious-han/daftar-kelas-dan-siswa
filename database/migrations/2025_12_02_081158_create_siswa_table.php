@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('nis');
             $table->string('no_hp');
             $table->string('jenis_kelamin');
-            
             $table->timestamps();
         });
     }

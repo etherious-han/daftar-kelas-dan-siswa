@@ -4,7 +4,7 @@
 <div class="d-flex">
     <h4>List Siswa</h4>
     <div class="ms-auto">
-        <a class="btn btn-success" href="{{ route('siswa.tambah') }}">Tambah Siswa</a>
+        <a class="btn btn-success" href="{{ route('siswa.tambah') }}">Tambahkeun Siswa</a>
     </div>
 </div>
 
@@ -23,7 +23,7 @@
     <tr>
             <td>{{ $no+1 }}</td>
             <td>{{ $data->nama}}</td>
-            <td>{{ $data->kelas}}</td>
+            <td>{{ $data->kelas->nama_kelas }}</td>
             <td>{{ $data->alamat}}</td>
             <td>{{ $data->nis}}</td>
             <td>{{ $data->no_hp}}</td>

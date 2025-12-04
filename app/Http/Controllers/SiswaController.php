@@ -50,10 +50,11 @@ class SiswaController extends Controller
     // Edit siswa
     public function edit($id)
     {
-        $siswa = Siswa::findOrFail($id);
-        $kelas = Kelas::all();
-        return view('siswa.edit', compact('siswa', 'kelas'));
+        $siswa = Siswa::with('kelas')->find($id); 
+        $kelas = $siswa->kelas; 
+        return view('Siswa.edit', compact('siswa', 'kelas'));
     }
+
 
     // Update siswa
     public function update(Request $request, $id)

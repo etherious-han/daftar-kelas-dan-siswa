@@ -8,44 +8,51 @@ use Illuminate\Http\Request;
 
 class SiswaController extends Controller
 {
-    // Tampil semua siswa per kelas
-    public function perKelas($id)
-    {
-        $kelas = Kelas::findOrFail($id);
-        $siswa = $kelas->siswa; // relasi hasMany
-        return view('siswa.perkelas', compact('kelas', 'siswa'));
+
+
+    public function perKelas(Request $request, $id)
+{
+    $kelas = Kelas::findOrFail($id);
+
+    // ambil relasi siswa dari kelas
+    $query = $kelas->siswa();
+
+    // Fitur search
+    if ($request->has('search') && $request->search != '') {
+        $query->where('nama', 'like', '%' . $request->search . '%');
     }
 
-    // Form tambah siswa per kelas
-    public function createByKelas($id)
-    {
-        $kelas = Kelas::findOrFail($id);
-        return view('siswa.tambah', compact('kelas'));
-    }
+    $siswa = $query->get();
 
-    // Simpan siswa per kelas
+    return view('Siswa.perkelas', compact('kelas', 'siswa'));
+}
+
+
     public function storeByKelas(Request $request, $id)
-    {
-        $request->validate([
-            'nama' => 'required',
-            'alamat' => 'required',
-            'nis' => 'required|unique:siswa,nis',
-            'no_hp' => 'required',
-            'jenis_kelamin' => 'required',
-        ]);
+{
+    // validasi data input
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'alamat' => 'required|string',
+        'nis' => 'required|string|unique:siswa,nis',
+        'no_hp' => 'required|string',
+        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+    ]);
 
-        Siswa::create([
-            'nama' => $request->nama,
-            'alamat' => $request->alamat,
-            'nis' => $request->nis,
-            'no_hp' => $request->no_hp,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'kelas_id' => $id
-        ]);
+    // buat siswa baru dan hubungkan ke kelas sesuai $id
+    Siswa::create([
+        'nama' => $request->nama,
+        'alamat' => $request->alamat,
+        'nis' => $request->nis,
+        'no_hp' => $request->no_hp,
+        'jenis_kelamin' => $request->jenis_kelamin,
+        'kelas_id' => $id,
+    ]);
 
-        return redirect()->route('siswa.perkelas', ['id' => $id])
-                         ->with('success', 'Siswa berhasil ditambahkan!');
-    }
+    // redirect kembali ke daftar siswa kelas itu
+    return redirect()->route('siswa.perkelas', $id)
+                 ->with('success', 'Siswa berhasil ditambahkan!');
+}
 
     // Edit siswa
     public function edit($id)
@@ -74,4 +81,16 @@ class SiswaController extends Controller
         return redirect()->route('siswa.perkelas', ['id' => $kelas_id])
                          ->with('success', 'Siswa berhasil dihapus!');
     }
+
+public function createByKelas($id)
+{
+    // ambil data kelas sesuai ID
+    $kelas = Kelas::findOrFail($id);
+
+    // tampilkan view tambah siswa dengan data kelas
+    return view('Siswa.tambah', compact('kelas'));
+}
+
+
+
 }

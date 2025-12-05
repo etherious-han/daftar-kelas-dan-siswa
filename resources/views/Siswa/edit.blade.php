@@ -28,6 +28,7 @@
     </select>
 
     <button class="btn btn-primary mt-3">Update</button>
+    <a href="{{ route('siswa.perkelas', ['id' => $kelas->id]) }}" class="btn btn-secondary mt-3">Kembali</a>
 </form>
 
 @endsection

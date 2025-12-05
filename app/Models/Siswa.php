@@ -9,7 +9,7 @@ class Siswa extends Model
 {
     use HasFactory;
 
-    // Nama tabel sesuai di database
+    // tambahkan ini biar Laravel pakai table 'siswa' yang udah ada
     protected $table = 'siswa';
 
     protected $fillable = [
@@ -18,6 +18,6 @@ class Siswa extends Model
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class, 'kelas_id');
+        return $this->belongsTo(Kelas::class);
     }
 }

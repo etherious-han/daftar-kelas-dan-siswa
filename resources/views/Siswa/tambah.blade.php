@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('konten')
-<h4>Tambah Siswa di Kelas {{ $kelas->nama_kelas }}</h4>
+<h4>Tambah Siswa di kelas</h4>
 
 <form action="{{ route('siswa.byKelas.store', ['id' => $kelas->id]) }}" method="POST">
     @csrf
@@ -28,5 +28,5 @@
     <button type="submit" class="btn btn-primary mt-3">Tambah</button>
 </form>
 
-<a href="{{ route('siswa.perkelas', ['id' => $kelas->id]) }}" class="btn btn-secondary mt-2">Kembali ke daftar siswa</a>
+<a href="{{ route('siswa.perkelas', ['id' => $kelas->id]) }}" class="btn btn-secondary mt-2">Kembali</a>
 @endsection

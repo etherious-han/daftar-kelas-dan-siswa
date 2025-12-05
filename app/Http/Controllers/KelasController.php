@@ -7,12 +7,22 @@ use App\Models\Kelas;
 
 class KelasController extends Controller
 {
-    // tampil semua kelas
-    public function index()
-    {
-        $kelas = Kelas::all();
-        return view('kelas.index', compact('kelas'));
+   public function index(Request $request)
+{
+    $query = Kelas::query();
+
+    // Search
+    if ($request->search) {
+        $query->where('nama_kelas', 'like', '%' . $request->search . '%');
     }
+
+    // Wajib paginate biar layout berubah
+    $kelas = $query->paginate(10)->withQueryString();
+
+    return view('kelas.index', compact('kelas'));
+}
+
+    
 
     // form tambah kelas
     public function create()
@@ -53,4 +63,6 @@ class KelasController extends Controller
         $kelas->delete();
         return redirect()->route('kelas.index');
     }
+
+
 }

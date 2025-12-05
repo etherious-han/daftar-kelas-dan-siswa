@@ -16,10 +16,12 @@ Route::get('/kelas/edit/{id}', [KelasController::class, 'edit'])->name('kelas.ed
 Route::put('/kelas/update/{id}', [KelasController::class, 'update'])->name('kelas.update');
 Route::delete('/kelas/delete/{id}', [KelasController::class, 'destroy'])->name('kelas.destroy');
 
+
 /* CRUD SISWA */
 Route::get('/kelas/{id}/siswa', [SiswaController::class, 'perKelas'])->name('siswa.perkelas');
 Route::get('/kelas/{id}/siswa/tambah', [SiswaController::class, 'createByKelas'])->name('siswa.byKelas.tambah');
 Route::post('/kelas/{id}/siswa/tambah', [SiswaController::class, 'storeByKelas'])->name('siswa.byKelas.store');
+Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
 
 Route::get('/siswa/edit/{id}', [SiswaController::class, 'edit'])->name('siswa.edit');
 Route::post('/siswa/update/{id}', [SiswaController::class, 'update'])->name('siswa.update');

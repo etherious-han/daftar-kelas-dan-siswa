@@ -12,10 +12,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Konfirmasi Hapus</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Yakin ingin menghapus kelas ini?</p>
+                    Yakin ingin menghapus kelas ini?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -26,22 +26,71 @@
     </div>
     <!-- END MODAL -->
 
+    <!-- Modal Error -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ session('error') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Success -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-success">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Berhasil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ session('success') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <h1 class="text-center mb-5">Daftar Kelas SMKN 1 Ngawi</h1>
 
-        <div class="d-flex justify-content-between mb-4 align-items-center">
+        <!-- Bar atas: Tambah + Search -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <!-- Tombol Tambah -->
             <a href="{{ route('kelas.create') }}" class="btn btn-success">Tambah Kelas</a>
 
             <!-- Search -->
-            <form action="{{ route('kelas.index') }}" method="GET" class="d-flex gap-2 align-items-center">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                    class="form-control" placeholder="Cari nama kelas..." style="width: 180px;">
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
+            <div class="d-flex mb-3 align-items-center">
+                <form action="{{ route('kelas.index') }}" method="GET" class="d-flex flex-grow-1">
+                    <div class="input-group">
+                        @if(request('search'))
+                        <a href="{{ route('kelas.index') }}" class="btn btn-outline-secondary">✕</a>
+                        @endif
+                        <input type="text" name="search" class="form-control" placeholder="Cari kelas..." value="{{ request('search') }}">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <!-- Tabel Kelas -->
+        <!-- Jika Tidak Ada Data -->
+        @if ($kelas->isEmpty())
+            <div class="alert alert-warning text-center">
+                Kelas tidak ditemukan.
+            </div>
+        @else
+        <!-- Tabel -->
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
@@ -51,15 +100,16 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($kelas as $k)
+                @foreach ($kelas as $k)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $loop->iteration + ($kelas->currentPage()-1) * $kelas->perPage() }}</td>
                     <td>{{ $k->nama_kelas }}</td>
                     <td>
                         <a href="{{ route('kelas.edit', $k->id) }}" class="btn btn-warning btn-sm">Edit</a>
 
-                        <form action="{{ route('kelas.destroy', $k->id) }}" method="POST" 
-                              style="display:inline;" 
+                        <!-- Tombol Hapus -->
+                        <form action="{{ route('kelas.destroy', $k->id) }}" 
+                              method="POST" class="d-inline"
                               onsubmit="event.preventDefault(); openDeleteModal(this);">
                             @csrf
                             @method('DELETE')
@@ -72,26 +122,46 @@
                 @endforeach
             </tbody>
         </table>
-         <div class="d-flex justify-content-center mt-3">
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-3">
             {{ $kelas->onEachSide(1)->links('pagination::bootstrap-5') }}
         </div>
+        @endif
     </div>
 
-    <!-- BOOTSTRAP JS -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JS UNTUK MODAL -->
+    <!-- Script Modal Delete -->
     <script>
         let deleteForm;
 
         function openDeleteModal(form) {
             deleteForm = form;
-            var myModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            myModal.show();
+            var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            modal.show();
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
             deleteForm.submit();
+        });
+    </script>
+
+    <!-- Script Modal Error/Success -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var error = "{{ session('error') }}";
+            var success = "{{ session('success') }}";
+
+            if(error){
+                var modal = new bootstrap.Modal(document.getElementById('errorModal'));
+                modal.show();
+            }
+            if(success){
+                var modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+            }
         });
     </script>
 

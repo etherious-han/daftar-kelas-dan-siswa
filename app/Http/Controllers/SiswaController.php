@@ -92,5 +92,19 @@ public function createByKelas($id)
 }
 
 
+public function tampil(Request $request)
+{
+    $keyword = $request->keyword;
+
+    $data = Siswa::when($keyword, function ($query) use ($keyword) {
+        $query->where('nama', 'like', '%' . $keyword . '%')
+              ->orWhere('nis', 'like', '%' . $keyword . '%');
+    })->paginate(10);
+
+    return view('siswa.index', compact('data', 'keyword'));
+}
+
+
+
 
 }

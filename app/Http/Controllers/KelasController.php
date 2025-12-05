@@ -31,13 +31,27 @@ class KelasController extends Controller
     }
 
     // simpan kelas baru
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        Kelas::create([
-            'nama_kelas' => $request->nama_kelas
+    try {
+        $request->validate([
+            'nama_kelas' => 'required|unique:kelas,nama_kelas',
         ]);
-        return redirect()->route('kelas.index');
+
+        Kelas::create([
+            'nama_kelas' => $request->nama_kelas,
+        ]);
+
+        // Ubah kata-kata popup sukses di sini
+        return redirect()->route('kelas.index')
+                         ->with('success', 'Yeay! Kelas berhasil ditambahkan 😎');
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Ubah kata-kata popup error di sini
+        return redirect()->route('kelas.index')
+                         ->with('error', 'Ups! Kelas ini sudah di  🚫');
     }
+    }
+
 
     // form edit kelas
     public function edit($id)
@@ -64,5 +78,6 @@ class KelasController extends Controller
         return redirect()->route('kelas.index');
     }
 
+    
 
 }

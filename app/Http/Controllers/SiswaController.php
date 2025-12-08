@@ -5,106 +5,132 @@ namespace App\Http\Controllers;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SiswaController extends Controller
 {
-
-
+    // ============================================================
+    //  TAMPIL SISWA PER KELAS (LIST)
+    // ============================================================
     public function perKelas(Request $request, $id)
-{
-    $kelas = Kelas::findOrFail($id);
+    {
+        $kelas = Kelas::findOrFail($id);
 
-    // ambil relasi siswa dari kelas
-    $query = $kelas->siswa();
+        // Query siswa di dalam kelas itu
+        $query = Siswa::where('kelas_id', $id);
 
-    // Fitur search
-    if ($request->has('search') && $request->search != '') {
-        $query->where('nama', 'like', '%' . $request->search . '%');
+        // Search
+        if ($request->has('search') && $request->search != '') {
+            $query->where('nama', 'like', '%' . $request->search . '%');
+        }
+
+        // Wajib paginate biar bisa onEachSide
+        $siswa = $query->paginate(10);
+
+        return view('Siswa.perkelas', compact('kelas', 'siswa'));
     }
 
-    $siswa = $query->get();
-
-    return view('Siswa.perkelas', compact('kelas', 'siswa'));
-}
 
 
-    public function storeByKelas(Request $request, $id)
+  // ============================================================
+//  STORE / TAMBAH SISWA
+// ============================================================
+public function storeByKelas(Request $request, $id)
 {
-    // validasi data input
-    $request->validate([
-        'nama' => 'required|string|max:255',
-        'alamat' => 'required|string',
-        'nis' => 'required|string|unique:siswa,nis',
-        'no_hp' => 'required|string',
-        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-    ]);
+    // Ambil data kelas berdasarkan ID
+    $kelas = \App\Models\Kelas::findOrFail($id);
 
-    // buat siswa baru dan hubungkan ke kelas sesuai $id
-    Siswa::create([
+    // Cek nama sudah ada atau belum di kelas itu
+    $cekNama = \App\Models\Siswa::where('kelas_id', $id)
+                ->where('nama', $request->nama)
+                ->first();
+
+    if ($cekNama) {
+        return redirect()
+            ->route('siswa.perkelas', $kelas->id)
+            ->with('error', 'Nama siswa sudah ada di kelas ini!');
+    }
+
+    // Simpan siswa baru
+    \App\Models\Siswa::create([
         'nama' => $request->nama,
-        'alamat' => $request->alamat,
         'nis' => $request->nis,
+        'alamat' => $request->alamat,
         'no_hp' => $request->no_hp,
         'jenis_kelamin' => $request->jenis_kelamin,
         'kelas_id' => $id,
     ]);
 
-    // redirect kembali ke daftar siswa kelas itu
-    return redirect()->route('siswa.perkelas', $id)
-                 ->with('success', 'Siswa berhasil ditambahkan!');
+    return redirect()
+        ->route('siswa.perkelas', $kelas->id)
+        ->with('success', 'Siswa berhasil ditambahkan!');
 }
 
-    // Edit siswa
+
+
+    // ============================================================
+    //  EDIT SISWA
+    // ============================================================
     public function edit($id)
     {
-        $siswa = Siswa::with('kelas')->find($id); 
-        $kelas = $siswa->kelas; 
+        $siswa = Siswa::with('kelas')->findOrFail($id);
+        $kelas = $siswa->kelas;
+
         return view('Siswa.edit', compact('siswa', 'kelas'));
     }
 
 
-    // Update siswa
+    // ============================================================
+    //  UPDATE SISWA
+    // ============================================================
     public function update(Request $request, $id)
     {
         $siswa = Siswa::findOrFail($id);
+
         $siswa->update($request->all());
+
         return redirect()->route('siswa.perkelas', ['id' => $siswa->kelas_id])
                          ->with('success', 'Data siswa berhasil diupdate!');
     }
 
-    // Hapus siswa
+
+    // ============================================================
+    //  DELETE SISWA
+    // ============================================================
     public function delete($id)
     {
         $siswa = Siswa::findOrFail($id);
         $kelas_id = $siswa->kelas_id;
+
         $siswa->delete();
+
         return redirect()->route('siswa.perkelas', ['id' => $kelas_id])
                          ->with('success', 'Siswa berhasil dihapus!');
     }
 
-public function createByKelas($id)
-{
-    // ambil data kelas sesuai ID
-    $kelas = Kelas::findOrFail($id);
 
-    // tampilkan view tambah siswa dengan data kelas
-    return view('Siswa.tambah', compact('kelas'));
-}
-
-
-public function tampil(Request $request)
-{
-    $keyword = $request->keyword;
-
-    $data = Siswa::when($keyword, function ($query) use ($keyword) {
-        $query->where('nama', 'like', '%' . $keyword . '%')
-              ->orWhere('nis', 'like', '%' . $keyword . '%');
-    })->paginate(10);
-
-    return view('siswa.index', compact('data', 'keyword'));
-}
+    // ============================================================
+    //  TAMPILKAN FORM TAMBAH SISWA PER KELAS
+    // ============================================================
+    public function createByKelas($id)
+    {
+        $kelas = Kelas::findOrFail($id);
+        return view('Siswa.tambah', compact('kelas'));
+    }
 
 
+    // ============================================================
+    //  HALAMAN INDEX SEMUA SISWA (JIKA ADA)
+    // ============================================================
+    public function tampil(Request $request)
+    {
+        $keyword = $request->keyword;
 
+        $data = Siswa::when($keyword, function ($query) use ($keyword) {
+            $query->where('nama', 'like', '%' . $keyword . '%')
+                  ->orWhere('nis', 'like', '%' . $keyword . '%');
+        })->paginate(10);
 
+        return view('Siswa.index', compact('data', 'keyword'));
+    }
 }

@@ -14,7 +14,7 @@
                 <label class="form-label">Kelas</label>
                 <input type="text" name="nama_kelas" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success">Simpan</button>
+            <button type="submit" class="btn btn-success">Tambah</button>
             <a href="{{ route('kelas.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>

@@ -44,11 +44,11 @@ class KelasController extends Controller
 
         // Ubah kata-kata popup sukses di sini
         return redirect()->route('kelas.index')
-                         ->with('success', 'Yeay! Kelas berhasil ditambahkan 😎');
+                         ->with('success', 'Yeay! Kelas berhasil ditambahkan');
     } catch (\Illuminate\Validation\ValidationException $e) {
         // Ubah kata-kata popup error di sini
         return redirect()->route('kelas.index')
-                         ->with('error', 'Ups! Kelas ini sudah di  🚫');
+                         ->with('error', 'Ups! Kelas ini sudah ada');
     }
     }
 
@@ -58,6 +58,7 @@ class KelasController extends Controller
     {
         $kelas = Kelas::findOrFail($id);
         return view('kelas.edit', compact('kelas'));
+        
     }
 
     // update kelas
@@ -67,17 +68,25 @@ class KelasController extends Controller
         $kelas->update([
             'nama_kelas' => $request->nama_kelas
         ]);
-        return redirect()->route('kelas.index');
+         return redirect()->route('kelas.index')
+            ->with('success', 'Kelas berhasil di update!');
     }
 
     // hapus kelas
     public function destroy($id)
-    {
-        $kelas = Kelas::findOrFail($id);
-        $kelas->delete();
-        return redirect()->route('kelas.index');
+{
+    $kelas = Kelas::findOrFail($id);
+
+    if ($kelas->siswa()->count() > 0) {
+        // kembalikan dengan session untuk trigger modal
+        return redirect()->route('kelas.index')
+                         ->with('cannotDelete', $kelas->nama_kelas);
     }
 
-    
+    $kelas->delete();
+    return redirect()->route('kelas.index')
+                     ->with('success', 'Kelas berhasil dihapus!');
+}
+
 
 }

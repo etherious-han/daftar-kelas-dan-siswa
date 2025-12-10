@@ -1,34 +1,24 @@
-@extends('layout')
+@extends('layouts.layout')
 
 @section('konten')
 
-<!-- ===================================================== -->
-<!-- =================== JUDUL + BUTTON =================== -->
-<!-- ===================================================== -->
-
 <!-- PROFILE DROPDOWN -->
 <div class="dropdown position-absolute top-0 end-0 m-3">
-    <button class="btn btn-primary rounded-circle dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px; padding: 0;">
+    <button class="btn btn-primary rounded-circle dropdown-toggle" type="button" id="profileDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px; padding: 0;">
         {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
     </button>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-        <!-- Profil -->
-        <li>
-            <a class="dropdown-item" href="{{ route('profile') }}">Profil</a>
-        </li>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{{ route('profile') }}">Profil</a></li>
         <li><hr class="dropdown-divider"></li>
-        <!-- Logout -->
         <li>
-            <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="dropdown-item text-danger">Logout</button>
             </form>
         </li>
     </ul>
 </div>
-
-
-
 
 <div class="container">
 
@@ -37,7 +27,6 @@
 
     <div class="d-flex mb-3 align-items-center">
 
-        <!-- Tombol Tambah + Kembali -->
         <div>
             <a href="{{ route('siswa.byKelas.tambah', $kelas->id) }}" class="btn btn-success">Tambah Siswa</a>
             <a href="{{ route('kelas.index') }}" class="btn btn-secondary">Kembali</a>
@@ -46,25 +35,25 @@
         <!-- Search -->
         <form action="{{ route('siswa.perkelas', $kelas->id) }}" method="GET" class="d-flex ms-auto">
             <div class="input-group">
+                
                 @if(request('search'))
-                <a href="{{ route('siswa.perkelas', $kelas->id) }}" class="btn btn-outline-secondary">✕</a>
+                    <a href="{{ route('siswa.perkelas', $kelas->id) }}" class="btn btn-outline-secondary">✕</a>
                 @endif
 
                 <input type="text" name="search" class="form-control"
-                       placeholder="Cari nama siswa..." value="{{ request('search') }}">
+                    placeholder="Cari nama siswa..." value="{{ request('search') }}">
 
                 <button class="btn btn-primary">Search</button>
             </div>
         </form>
+
     </div>
 </div>
 
-
 <!-- ===================================================== -->
-<!-- ===================== POPUP MODAL ==================== -->
+<!-- ===================== MODAL ERROR ==================== -->
 <!-- ===================================================== -->
 
-<!-- Modal Error -->
 <div class="modal fade" id="errorModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-danger">
@@ -75,15 +64,17 @@
             <div class="modal-body">
                 {{ session('error') }}
             </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
+</div>
 
+<!-- ===================================================== -->
+<!-- ==================== MODAL SUCCESS =================== -->
+<!-- ===================================================== -->
 
-<!-- Modal Success -->
 <div class="modal fade" id="successModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-success">
@@ -94,12 +85,12 @@
             <div class="modal-body">
                 {{ session('success') }}
             </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
+</div>
 
 
 
@@ -152,9 +143,9 @@
                         <!-- Modal Hapus -->
                         <div class="modal fade" id="hapusModal{{ $data->id }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-0">
+                                <div class="modal-content">
 
-                                    <div class="modal-header border-0">
+                                    <div class="modal-header">
                                         <h5 class="modal-title">Konfirmasi Hapus</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
@@ -163,7 +154,7 @@
                                         Yakin ingin menghapus <strong>{{ $data->nama }}</strong>?
                                     </div>
 
-                                    <div class="modal-footer justify-content-center border-0">
+                                    <div class="modal-footer justify-content-center">
                                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                                             Batal
                                         </button>
@@ -184,18 +175,20 @@
             </tbody>
 
         </table>
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-3">
-           {{ $siswa->onEachSide(1)->links('pagination::bootstrap-5') }}
 
+        <div class="d-flex justify-content-center mt-3">
+            {{ $siswa->onEachSide(1)->links('pagination::bootstrap-5') }}
         </div>
+
     @endif
 </div>
 
-    <h5 class="text-center text-muted mt-5" style="font-size: 12px;">
+<h5 class="text-center text-muted mt-5" style="font-size: 12px;">
     © 2025 Sistem Informasi Kelas – SMKN 1 Ngawi
+</h5>
 
-@endsection  {{-- ini nutup konten --}}
+@endsection
+
 
 @section('script')
 

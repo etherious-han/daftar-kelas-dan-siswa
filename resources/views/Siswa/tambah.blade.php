@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.layout')
 
 @section('konten')
 <h4>Tambah Siswa di kelas</h4>

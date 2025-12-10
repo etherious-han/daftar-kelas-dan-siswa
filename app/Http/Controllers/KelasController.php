@@ -7,22 +7,21 @@ use App\Models\Kelas;
 
 class KelasController extends Controller
 {
-   public function index(Request $request)
-{
-    $query = Kelas::query();
+    public function index(Request $request)
+    {
+        $query = Kelas::query();
 
-    // Search
-    if ($request->search) {
-        $query->where('nama_kelas', 'like', '%' . $request->search . '%');
+        // Search
+        if ($request->search) {
+            $query->where('nama_kelas', 'like', '%' . $request->search . '%');
+        }
+
+        // Wajib paginate biar layout berubah
+        $kelas = $query->paginate(10)->withQueryString();
+
+        // Ubah dari 'kelas.index' jadi 'kelas.index_admin'
+        return view('kelas.index_admin', compact('kelas'));
     }
-
-    // Wajib paginate biar layout berubah
-    $kelas = $query->paginate(10)->withQueryString();
-
-    return view('kelas.index', compact('kelas'));
-}
-
-    
 
     // form tambah kelas
     public function create()
@@ -31,34 +30,30 @@ class KelasController extends Controller
     }
 
     // simpan kelas baru
-   public function store(Request $request)
+    public function store(Request $request)
     {
-    try {
-        $request->validate([
-            'nama_kelas' => 'required|unique:kelas,nama_kelas',
-        ]);
+        try {
+            $request->validate([
+                'nama_kelas' => 'required|unique:kelas,nama_kelas',
+            ]);
 
-        Kelas::create([
-            'nama_kelas' => $request->nama_kelas,
-        ]);
+            Kelas::create([
+                'nama_kelas' => $request->nama_kelas,
+            ]);
 
-        // Ubah kata-kata popup sukses di sini
-        return redirect()->route('kelas.index')
-                         ->with('success', 'Yeay! Kelas berhasil ditambahkan');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Ubah kata-kata popup error di sini
-        return redirect()->route('kelas.index')
-                         ->with('error', 'Ups! Kelas ini sudah ada');
+            return redirect()->route('kelas.index')
+                             ->with('success', 'Yeay! Kelas berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->route('kelas.index')
+                             ->with('error', 'Ups! Kelas ini sudah ada');
+        }
     }
-    }
-
 
     // form edit kelas
     public function edit($id)
     {
         $kelas = Kelas::findOrFail($id);
         return view('kelas.edit', compact('kelas'));
-        
     }
 
     // update kelas
@@ -68,25 +63,23 @@ class KelasController extends Controller
         $kelas->update([
             'nama_kelas' => $request->nama_kelas
         ]);
-         return redirect()->route('kelas.index')
+        return redirect()->route('kelas.index')
             ->with('success', 'Kelas berhasil di update!');
     }
 
     // hapus kelas
     public function destroy($id)
-{
-    $kelas = Kelas::findOrFail($id);
+    {
+        $kelas = Kelas::findOrFail($id);
 
-    if ($kelas->siswa()->count() > 0) {
-        // kembalikan dengan session untuk trigger modal
+        if ($kelas->siswa()->count() > 0) {
+            // kembalikan dengan session untuk trigger modal
+            return redirect()->route('kelas.index')
+                             ->with('cannotDelete', $kelas->nama_kelas);
+        }
+
+        $kelas->delete();
         return redirect()->route('kelas.index')
-                         ->with('cannotDelete', $kelas->nama_kelas);
+                         ->with('success', 'Kelas berhasil dihapus!');
     }
-
-    $kelas->delete();
-    return redirect()->route('kelas.index')
-                     ->with('success', 'Kelas berhasil dihapus!');
-}
-
-
 }

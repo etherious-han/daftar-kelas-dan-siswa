@@ -26,7 +26,7 @@ class AuthController extends Controller
         User::create([
             'name' => $request->name,
             'username' => $request->username,
-            'password' => bcrypt($request->password), // jangan lupa bcrypt
+            'password' => bcrypt($request->password),
         ]);
 
         return redirect()->route('login')->with('success', 'Akun berhasil dibuat!');
@@ -38,7 +38,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // PROSES LOGIN
+    // PROSES LOGIN (DIUBAH INI)
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -46,9 +46,27 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('kelas.index');
+        // Login ke guard 'web' dulu untuk cek user
+        if (Auth::guard('web')->attempt($credentials)) {
+            $user = Auth::guard('web')->user();
+            
+            // Logout dari guard 'web'
+            Auth::guard('web')->logout();
+            
+            // Login ke guard sesuai role
+            if ($user->role === 'admin') {
+                Auth::guard('admin')->login($user);
+                $request->session()->regenerate();
+                return redirect()->route('kelas.index'); // Admin ke kelas
+            } 
+            elseif ($user->role === 'siswa') {
+                Auth::guard('siswa')->login($user);
+                $request->session()->regenerate();
+                return redirect()->route('siswa.kelas'); // Siswa ke kelas mereka
+            }
+            else {
+                return back()->withErrors(['username' => 'Role tidak dikenali!']);
+            }
         }
 
         return back()->withErrors([
@@ -56,12 +74,17 @@ class AuthController extends Controller
         ]);
     }
 
-    // LOGOUT
+    // LOGOUT (DIUBAH INI)
     public function logout(Request $request)
     {
-        Auth::logout();
+        // Logout dari semua guard
+        Auth::guard('admin')->logout();
+        Auth::guard('siswa')->logout();
+        Auth::guard('web')->logout();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return redirect()->route('login');
     }
 }

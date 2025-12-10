@@ -102,9 +102,6 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
         <!-- Profil -->
-        <li>
-            <a class="dropdown-item" href="{{ route('profile') }}">Profil</a>
-        </li>
         <li><hr class="dropdown-divider"></li>
         <!-- Logout -->
         <li>
